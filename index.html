@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>元旦抽礼物</title>
+  <style>
+    :root{
+      --bg1:#0b1020;
+      --bg2:#120b2d;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.12);
+      --text:#f5f6ff;
+      --muted: rgba(245,246,255,.7);
+      --accent:#ffcc66;
+      --accent2:#7cf0ff;
+      --btn:#ffffff;
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", Arial, sans-serif;
+      background: radial-gradient(1000px 800px at 30% 20%, rgba(124,240,255,.25), transparent 50%),
+                  radial-gradient(900px 700px at 75% 10%, rgba(255,204,102,.18), transparent 45%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:700;
+      letter-spacing:.5px;
+    }
+    .badge{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(255,204,102,.25), rgba(124,240,255,.18));
+      border:1px solid rgba(255,255,255,.16);
+      color:var(--muted);
+    }
+
+    /* landing */
+    .center{
+      min-height: calc(100vh - 140px);
+      display:grid;
+      place-items:center;
+    }
+    .panel{
+      width:min(560px, 92vw);
+      padding: 28px 22px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .panel:before{
+      content:"";
+      position:absolute;
+      inset:-120px -120px auto auto;
+      width:220px; height:220px;
+      background: radial-gradient(circle, rgba(255,204,102,.35), transparent 60%);
+      filter: blur(2px);
+      transform: rotate(15deg);
+    }
+    .panel h1{
+      margin:0 0 10px;
+      font-size: 26px;
+      line-height:1.2;
+    }
+    .panel p{
+      margin:0 0 18px;
+      color:var(--muted);
+      line-height:1.7;
+      font-size:14px;
+    }
+    .bigbtn{
+      width:100%;
+      padding: 14px 16px;
+      border:none;
+      border-radius: 14px;
+      font-weight:800;
+      font-size:16px;
+      cursor:pointer;
+      color:#101018;
+      background: linear-gradient(90deg, var(--btn), rgba(255,255,255,.85));
+      box-shadow: 0 16px 40px rgba(255,255,255,.08);
+      transition: transform .08s ease, filter .2s ease;
+    }
+    .bigbtn:hover{ filter: brightness(1.05); }
+    .bigbtn:active{ transform: translateY(1px) scale(.995); }
+
+    /* game */
+    .game{
+      display:none;
+      margin-top: 16px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 860px){
+      .grid{ grid-template-columns: 420px 1fr; align-items:start; }
+    }
+    .card{
+      border-radius: 20px;
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .title{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 12px;
+    }
+    .title h2{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:.4px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 12px;
+    }
+
+    .wheelBox{
+      display:grid;
+      place-items:center;
+      padding: 8px 0 4px;
+      position:relative;
+    }
+    canvas#wheel{
+      width: 320px;
+      height: 320px;
+      max-width: 80vw;
+      max-height: 80vw;
+      border-radius: 999px;
+      background: rgba(255,255,255,.02);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+    }
+    .pointer{
+      position:absolute;
+      top: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width:0; height:0;
+      border-left: 14px solid transparent;
+      border-right:14px solid transparent;
+      border-top: 26px solid var(--accent);
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.45));
+    }
+    .hub{
+      position:absolute;
+      width:72px; height:72px;
+      border-radius:999px;
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.95), rgba(255,255,255,.72));
+      border:1px solid rgba(255,255,255,.25);
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      display:grid;
+      place-items:center;
+      color:#111;
+      font-weight:900;
+      letter-spacing:.6px;
+      user-select:none;
+      pointer-events:none;
+    }
+    .controls{
+      display:flex;
+      gap:10px;
+      margin-top: 12px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .btn{
+      padding: 11px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      color:var(--text);
+      cursor:pointer;
+      font-weight:700;
+      transition: transform .08s ease, filter .2s ease, opacity .2s ease;
+      min-width: 140px;
+      text-align:center;
+    }
+    .btn.primary{ background: linear-gradient(90deg, rgba(255,204,102,.35), rgba(124,240,255,.22)); }
+    .btn:disabled{ opacity:.5; cursor:not-allowed; }
+    .btn:active{ transform: translateY(1px); }
+
+    .list{
+      margin: 0;
+      padding: 0;
+      list-style:none;
+      display:grid;
+      gap:10px;
+    }
+    .li{
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .li b{ color:var(--text); font-weight:800; }
+
+    /* modal */
+    .modal{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 20;
+    }
+    .dialog{
+      width:min(520px, 92vw);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(30,36,70,.92), rgba(18,12,45,.92));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 25px 90px rgba(0,0,0,.6);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .dialog:before{
+      content:"";
+      position:absolute;
+      inset:-120px auto auto -120px;
+      width:240px; height:240px;
+      background: radial-gradient(circle, rgba(124,240,255,.28), transparent 60%);
+      filter: blur(2px);
+    }
+    .dialog h3{
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .result{
+      margin: 10px 0 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.14);
+      line-height:1.6;
+    }
+    .result .big{
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing:.5px;
+      color: #fff;
+      margin-top: 4px;
+    }
+    .dialog .row{
+      display:flex; gap:10px; flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0;
+    }
+
+    /* confetti canvas */
+    #fx{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index: 30;
+      display:none;
+    }
+  </style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span style="font-size:18px;">🎉</span>
+      <span>元旦抽礼物</span>
+      <span class="badge">转盘抽奖 · 单次开奖</span>
+    </div>
+    <div class="badge" id="dateBadge"></div>
+  </header>
+
+  <!-- Landing -->
+  <div class="center" id="landing">
+    <div class="panel">
+      <h1>元旦抽礼物</h1>
+      <p>点击“开启”进入转盘。抽一次就开一次奖（避免反复刷奖）。想改概率、改奖品，直接改代码里的数组即可。</p>
+      <button class="bigbtn" id="openBtn">开启</button>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <section class="game" id="game">
+    <div class="grid">
+      <div class="card">
+        <div class="title">
+          <h2>转盘</h2>
+          <p class="sub" id="statusText">准备就绪</p>
+        </div>
+
+        <div class="wheelBox">
+          <div class="pointer" aria-hidden="true"></div>
+          <canvas id="wheel" width="640" height="640" aria-label="转盘"></canvas>
+          <div class="hub">抽</div>
+        </div>
+
+        <div class="controls">
+          <button class="btn primary" id="spinBtn">开始抽奖</button>
+          <button class="btn" id="resetBtn">重置（允许再抽）</button>
+        </div>
+
+        <p class="hint" style="margin-top:10px;">
+          小彩蛋：开奖时会掉一点“彩纸”。如果你不想要特效，把代码里 playConfetti() 那行删掉就行。
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="title">
+          <h2>奖池</h2>
+          <p class="sub">共 5 项</p>
+        </div>
+        <ul class="list" id="prizeList"></ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">开奖结果</h3>
+    <div class="result">
+      <div style="color:rgba(245,246,255,.8); font-size:13px;">你抽到了：</div>
+      <div class="big" id="resultText">—</div>
+      <div style="margin-top:6px;color:rgba(245,246,255,.75);font-size:13px;" id="resultTip"></div>
+    </div>
+    <div class="row">
+      <button class="btn" id="closeBtn">我知道了</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ======================
+  // 1) 配置区：奖品与概率
+  // ======================
+  const prizes = [
+    { name: "一等奖：52r", tip: "手气很顶。今晚加餐有了。" },
+    { name: "二等奖：自选外卖报销（30以内）", tip: "快乐碳水，合理报销。" },
+    { name: "三等奖：小蛋糕一个", tip: "甜味补给，适合配奶茶。" },
+    { name: "四等奖：13.14", tip: "小小仪式感，数字也挺浪漫（但不必多想哈哈）。" },
+    { name: "五等奖：5.2", tip: "虽然小，但也是元旦的好彩头。" },
+  ];
+
+  // 概率权重（可改）：数字越大越容易抽到
+  // 例如想让一等奖更难：把它的权重调小（比如 1），其他调大（比如 3/4/5）
+  const weights = [2, 4, 3, 4, 5];
+
+  // ======================
+  // 2) DOM 与初始化
+  // ======================
+  const $ = (s) => document.querySelector(s);
+  const landing = $("#landing");
+  const game = $("#game");
+  const openBtn = $("#openBtn");
+  const spinBtn = $("#spinBtn");
+  const resetBtn = $("#resetBtn");
+  const statusText = $("#statusText");
+  const modal = $("#modal");
+  const resultText = $("#resultText");
+  const resultTip = $("#resultTip");
+  const closeBtn = $("#closeBtn");
+  const dateBadge = $("#dateBadge");
+
+  // 日期角标（按本地时间显示）
+  (function setDate(){
+    const d = new Date();
+    const pad = (n)=>String(n).padStart(2,"0");
+    dateBadge.textContent = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  })();
+
+  // 奖池列表
+  const prizeList = $("#prizeList");
+  prizes.forEach((p, i) => {
+    const li = document.createElement("li");
+    li.className = "li";
+    li.innerHTML = `<b>${p.name}</b><span>编号 ${i+1}</span>`;
+    prizeList.appendChild(li);
+  });
+
+  // ======================
+  // 3) 转盘绘制（Canvas）
+  // ======================
+  const wheel = $("#wheel");
+  const ctx = wheel.getContext("2d");
+
+  let rotation = 0;       // 当前转盘角度（弧度）
+  let spinning = false;   // 是否正在转
+  let hasDrawn = false;   // 是否已经抽过一次（默认单次开奖）
+  let lastWinIndex = null;
+
+  function drawWheel(angleRad = 0){
+    const W = wheel.width, H = wheel.height;
+    const cx = W/2, cy = H/2;
+    const r = Math.min(W, H) * 0.45;
+
+    ctx.clearRect(0,0,W,H);
+
+    // 外圈微光
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.beginPath();
+    ctx.arc(0,0,r+22,0,Math.PI*2);
+    ctx.strokeStyle = "rgba(255,255,255,.12)";
+    ctx.lineWidth = 16;
+    ctx.stroke();
+    ctx.restore();
+
+    const n = prizes.length;
+    const slice = (Math.PI * 2) / n;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angleRad);
+
+    for(let i=0;i<n;i++){
+      const start = i * slice;
+      const end = start + slice;
+
+      // 每块颜色（用 HSL 做出区分）
+      const hue = (i * (360 / n) + 30) % 360;
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.arc(0,0,r,start,end);
+      ctx.closePath();
+      ctx.fillStyle = `hsla(${hue}, 85%, 60%, .92)`;
+      ctx.fill();
+
+      // 分割线
+      ctx.beginPath();
+      ctx.arc(0,0,r,start,end);
+      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // 文本
+      ctx.save();
+      ctx.rotate(start + slice/2);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "rgba(15,16,20,.92)";
+      ctx.font = "900 26px ui-sans-serif, system-ui";
+      ctx.fillText(prizes[i].name, r-18, 10);
+      ctx.restore();
+    }
+
+    // 中心圆遮罩（增强层次）
+    ctx.beginPath();
+    ctx.arc(0,0, r*0.18, 0, Math.PI*2);
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  drawWheel(rotation);
+
+  // ======================
+  // 4) 抽奖逻辑：加权随机 + 指定落点角度
+  // ======================
+  function pickIndexByWeight(){
+    const sum = weights.reduce((a,b)=>a+b, 0);
+    let x = Math.random() * sum;
+    for(let i=0;i<weights.length;i++){
+      x -= weights[i];
+      if(x <= 0) return i;
+    }
+    return weights.length - 1;
+  }
+
+  // 指针在“正上方”，而 canvas 默认 0 弧度在正右方，所以要做角度换算
+  // 我们希望最终停在某个扇区的中间点，且扇区中间对准指针（正上）
+  function targetRotationForIndex(index){
+    const n = prizes.length;
+    const slice = (Math.PI*2) / n;
+
+    // 扇区中心角（从 0 开始顺时针）
+    const center = index * slice + slice/2;
+
+    // 指针位于 -90°（正上），所以要让 center 对齐到 -90°
+    const pointerAngle = -Math.PI/2;
+
+    // 需要旋转到：pointerAngle - center
+    return pointerAngle - center;
+  }
+
+  function easeOutCubic(t){ return 1 - Math.pow(1-t, 3); }
+
+  function spin(){
+    if(spinning) return;
+    if(hasDrawn){
+      statusText.textContent = "已开奖（如需再抽请点重置）";
+      return;
+    }
+
+    spinning = true;
+    spinBtn.disabled = true;
+    statusText.textContent = "转动中…";
+
+    const winIndex = pickIndexByWeight();
+    lastWinIndex = winIndex;
+
+    // 目标角度（加很多圈让它更像抽奖）
+    const base = targetRotationForIndex(winIndex);
+    const extraTurns = 6 + Math.floor(Math.random()*3); // 6~8 圈
+    const start = rotation;
+    const end = base + extraTurns * Math.PI * 2;
+
+    const duration = 3200 + Math.random()*500; // 3.2~3.7s
+    const t0 = performance.now();
+
+    function frame(now){
+      const t = Math.min(1, (now - t0) / duration);
+      const e = easeOutCubic(t);
+      rotation = start + (end - start) * e;
+      drawWheel(rotation);
+
+      if(t < 1){
+        requestAnimationFrame(frame);
+      }else{
+        spinning = false;
+        hasDrawn = true;
+
+        statusText.textContent = "已开奖";
+        showResult(winIndex);
+        playConfetti(); // 小彩蛋
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ======================
+  // 5) 结果弹窗
+  // ======================
+  function showResult(i){
+    resultText.textContent = prizes[i].name;
+    resultTip.textContent = prizes[i].tip || "";
+    modal.style.display = "flex";
+  }
+  function closeResult(){
+    modal.style.display = "none";
+  }
+
+  // ======================
+  // 6) 彩纸/礼花特效（轻量版）
+  // ======================
+  const fx = document.getElementById("fx");
+  const fctx = fx.getContext("2d");
+  let fxParticles = [];
+  let fxRunning = false;
+
+  function resizeFx(){
+    fx.width = window.innerWidth * devicePixelRatio;
+    fx.height = window.innerHeight * devicePixelRatio;
+  }
+  window.addEventListener("resize", resizeFx);
+  resizeFx();
+
+  function playConfetti(){
+    fx.style.display = "block";
+    fxParticles = [];
+
+    const count = 140;
+    const W = fx.width, H = fx.height;
+
+    for(let i=0;i<count;i++){
+      const x = (Math.random()*0.8 + 0.1) * W;
+      const y = -Math.random() * H * 0.2;
+      const vx = (Math.random() - 0.5) * 1.2 * devicePixelRatio;
+      const vy = (Math.random() * 2.2 + 2.2) * devicePixelRatio;
+      const size = (Math.random() * 10 + 6) * devicePixelRatio;
+      const rot = Math.random() * Math.PI * 2;
+      const vr = (Math.random() - 0.5) * 0.18;
+      const hue = Math.floor(Math.random()*360);
+      fxParticles.push({x,y,vx,vy,size,rot,vr,hue,life: 140 + Math.random()*60});
+    }
+
+    if(!fxRunning){
+      fxRunning = true;
+      requestAnimationFrame(fxLoop);
+      setTimeout(()=>{ fx.style.display="none"; }, 2200);
+    }
+  }
+
+  function fxLoop(){
+    const W = fx.width, H = fx.height;
+    fctx.clearRect(0,0,W,H);
+
+    fxParticles.forEach(p=>{
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.02 * devicePixelRatio;
+      p.rot += p.vr;
+      p.life -= 1;
+
+      fctx.save();
+      fctx.translate(p.x, p.y);
+      fctx.rotate(p.rot);
+      fctx.fillStyle = `hsla(${p.hue}, 90%, 60%, .85)`;
+      fctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.55);
+      fctx.restore();
+    });
+
+    fxParticles = fxParticles.filter(p => p.life > 0 && p.y < H + 60*devicePixelRatio);
+
+    if(fxParticles.length > 0){
+      requestAnimationFrame(fxLoop);
+    }else{
+      fxRunning = false;
+      fx.style.display = "none";
+    }
+  }
+
+  // ======================
+  // 7) 交互：开启/抽奖/重置
+  // ======================
+  openBtn.addEventListener("click", ()=>{
+    landing.style.display = "none";
+    game.style.display = "block";
+    // 小小入场“随机起始角度”，更像真实转盘
+    rotation = (Math.random()*Math.PI*2);
+    drawWheel(rotation);
+    statusText.textContent = "准备就绪";
+  });
+
+  spinBtn.addEventListener("click", spin);
+
+  resetBtn.addEventListener("click", ()=>{
+    hasDrawn = false;
+    spinBtn.disabled = false;
+    statusText.textContent = "准备就绪";
+    // 重置时不强制归零，保持自然
+  });
+
+  closeBtn.addEventListener("click", closeResult);
+  modal.addEventListener("click", (e)=>{
+    if(e.target === modal) closeResult();
+  });
+
+  // 键盘 Esc 关闭弹窗
+  window.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape") closeResult();
+  });
+</script>
+</body>
+</html>
